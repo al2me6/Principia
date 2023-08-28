@@ -1123,6 +1123,8 @@ public partial class PrincipiaPluginAdapter : ScenarioModule,
   private System.Collections.IEnumerator WaitedForFixedUpdate() {
     yield return new UnityEngine.WaitForFixedUpdate();
 
+    bool originalAutoSyncTransforms = UnityEngine.Physics.autoSyncTransforms;
+
     try {
       // Unity's physics has just finished doing its thing.  If we correct the
       // positions here, nobody will know that they're not the ones obtained by
@@ -1131,6 +1133,9 @@ public partial class PrincipiaPluginAdapter : ScenarioModule,
       if (!time_is_advancing_) {
         yield break;
       }
+
+      // cf. https://docs.unity3d.com/ScriptReference/Physics-autoSyncTransforms.html
+      UnityEngine.Physics.autoSyncTransforms = false;
 
       double Δt = Planetarium.TimeScale * Planetarium.fetch.fixedDeltaTime;
 
@@ -1492,6 +1497,9 @@ public partial class PrincipiaPluginAdapter : ScenarioModule,
       }
     } catch (Exception e) {
       Log.Fatal(e.ToString());
+    } finally {
+      UnityEngine.Physics.autoSyncTransforms = originalAutoSyncTransforms;
+      UnityEngine.Physics.SyncTransforms();
     }
   }
 
